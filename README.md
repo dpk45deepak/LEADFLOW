@@ -125,13 +125,13 @@ Manual checklist: register → add lead → see it in list and dashboard → sea
 
 ## 8. Deployment
 
-**MongoDB Atlas**: create a free cluster, a database user, and allow network access (0.0.0.0/0 for Render's dynamic IPs, or Render's outbound IPs). Copy the connection string.
+**MongoDB Atlas**: create a cluster and database user, then configure the network access list for your Vercel backend's outbound traffic. Copy the connection string.
 
-**Backend on Render** (Web Service): root directory `server`, build `npm install`, start `npm start`, health check path `/api/health`. Env vars: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_URL` (your Vercel URL, no trailing slash needed), `NODE_ENV=production`.
+**Backend on Vercel**: create a Vercel project with the repository root directory set to `server`. Vercel deploys `server/api/[...path].js` as a Node.js serverless function for the existing `/api/*` routes. Add `MONGODB_URI`, `JWT_SECRET`, and `CLIENT_URL` as environment variables. Set `CLIENT_URL` to your deployed frontend origin (without a trailing slash); add comma-separated origins if you also need to allow preview deployments. No `PORT` setting is needed on Vercel.
 
-**Frontend on Vercel**: root directory `client`, framework Vite, build `npm run build`, output `dist`. Env var: `VITE_API_URL=https://<your-render-service>.onrender.com/api`. `client/vercel.json` rewrites all routes to `index.html` for React Router. After the first deploy, put the Vercel URL into Render's `CLIENT_URL`.
+**Frontend on Vercel**: create a separate Vercel project with root directory `client`, framework Vite, build `npm run build`, and output `dist`. Set `VITE_API_URL=https://<your-backend-project>.vercel.app/api`. `client/vercel.json` rewrites frontend routes to `index.html` for React Router. Add the final frontend URL to the backend's `CLIENT_URL`.
 
-Render's free tier sleeps when idle, so the first request after a pause can take about 30 seconds.
+For local development, continue to run `npm run dev:server`; it starts the same Express app on port 5000.
 
 ## 9. Assumptions and trade-offs
 
