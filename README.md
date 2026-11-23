@@ -125,11 +125,19 @@ Manual checklist: register → add lead → see it in list and dashboard → sea
 
 ## 8. Deployment
 
-**MongoDB Atlas**: create a cluster and database user, then configure the network access list for your Vercel backend's outbound traffic. Copy the connection string.
+**MongoDB Atlas**: create a cluster and database user, configure its network access rules for Render's outbound traffic, and copy the connection string.
 
-**Backend on Vercel**: create a Vercel project with the repository root directory set to `server`. Vercel deploys `server/api/[...path].js` as a Node.js serverless function for the existing `/api/*` routes. Add `MONGODB_URI`, `JWT_SECRET`, and `CLIENT_URL` as environment variables. Set `CLIENT_URL` to your deployed frontend origin (without a trailing slash); add comma-separated origins if you also need to allow preview deployments. No `PORT` setting is needed on Vercel.
+**Backend on Render**: create a Render Web Service from this repository. Set the root directory to `server`, build command to `npm install`, and start command to `npm start`. Render provides the `PORT` environment variable automatically. Add these environment variables:
 
-**Frontend on Vercel**: create a separate Vercel project with root directory `client`, framework Vite, build `npm run build`, and output `dist`. Set `VITE_API_URL=https://<your-backend-project>.vercel.app/api`. `client/vercel.json` rewrites frontend routes to `index.html` for React Router. Add the final frontend URL to the backend's `CLIENT_URL`.
+- `MONGODB_URI`: your MongoDB Atlas connection string
+- `JWT_SECRET`: a strong random secret
+- `CLIENT_URL`: the deployed frontend origin, without a trailing slash; use comma-separated origins for additional allowed frontends
+
+The health check path is `/api/health`.
+
+**Frontend on Render**: create a Render Static Site from this repository. Set the root directory to `client`, build command to `npm install && npm run build`, and publish directory to `dist`. Set `VITE_API_URL=https://<your-backend-service>.onrender.com/api`. Add a rewrite from `/*` to `/index.html` so React Router routes work on direct visits and refreshes. Add the final frontend URL to the backend's `CLIENT_URL`.
+
+The repository also includes `render.yaml`, which defines both Render services. Create them with **New > Blueprint** and provide the required environment values in the Render dashboard.
 
 For local development, continue to run `npm run dev:server`; it starts the same Express app on port 5000.
 
